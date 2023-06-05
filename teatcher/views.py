@@ -6,6 +6,14 @@ from .models import Teacher
 import jwt, datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+import dotenv
+import os,openai
+from django.http import JsonResponse
+dotenv.load_dotenv()
+#api_key = os.getenv('OPENAI_KEY')
+from django.views.decorators.csrf import csrf_exempt
+
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -73,5 +81,46 @@ class UserView(APIView):
         user = Teacher.objects.filter(id=payload['id']).first()
         serializer = UserSerializer(user)
         return Response(serializer.data)
+@csrf_exempt
+# def chatactivities(request):
+#     if api_key is not None :
+#         openai.api_key = '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'
+#         subject="math"
+#         lesson_name="equation"
+#         prompt = f"matiere: {subject}\n la lecon : {lesson_name}\n propose moi une activité:"
+#         response = openai.Completion.create(
+#             engine='text-davinci-003', 
+#             prompt=prompt,
+#             max_tokens=100,  
+#            ) 
+#         activity_details = response.choices[0].text.strip()
+#         return activity_details
+    
+def chatactivities(request):
+    if request.method == 'GET':
+        api_key = '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'  # Replace with your actual OpenAI API key
+        openai.api_key = api_key
+        subject = "math"
+        lesson_name = "equation"
+        prompt = f"translate me this: {subject} on spanish\n"
+        response = openai.Completion.create(
+            engine='text-davinci-003',
+            prompt=prompt,
+            max_tokens=40,
+            temperature=0.5,
+        )
 
+        if 'error' in response:
+            print(response['error'])  # Print the error response from the OpenAI API
+
+        activity_details = response.choices[0].text.strip()
+
+        return JsonResponse({'activity_details': activity_details})
+
+    return JsonResponse({'error': 'Invalid request method'})
+
+# Rm11a}72RLK; mryamroot taamehoj_mryamroot  taamehoj_scenario
+
+
+    
        
